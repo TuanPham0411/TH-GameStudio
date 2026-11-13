@@ -4,6 +4,12 @@ if [ "$(id -u)" = 0 ]; then
   echo 'Chạy script bằng tài khoản desktop (thienha), không dùng root.' >&2
   exit 1
 fi
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+if [ ! -S "$XDG_RUNTIME_DIR/bus" ]; then
+  echo 'Chưa có phiên desktop của tài khoản hiện tại. Đăng nhập desktop Pi rồi thử lại.' >&2
+  exit 1
+fi
 repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 command -v python3 >/dev/null
 browser="$(command -v chromium || command -v chromium-browser || true)"
@@ -41,6 +47,12 @@ cat > "$helper" <<'HELPER'
 #!/bin/bash
 # Managed by TH-GameStudio
 set -eu
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+if [ ! -S "$XDG_RUNTIME_DIR/bus" ]; then
+  echo 'Chưa có phiên desktop. Hãy mở bằng Terminal trên desktop Pi.' >&2
+  exit 1
+fi
 systemctl --user start th-gamestudio.service
 for attempt in {1..30}; do
   if python3 -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8765/", timeout=1)' 2>/dev/null; then
