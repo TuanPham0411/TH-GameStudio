@@ -87,6 +87,35 @@ Name=TH GameStudio
 Exec="$helper"
 Terminal=false
 ENTRY
+# Install a persistent shortcut and icon, independent of deployment release paths.
+mkdir -p "$HOME/.local/share/icons" "$HOME/.local/share/applications"
+cp "$repo_dir/web/icon.svg" "$HOME/.local/share/icons/th-gamestudio.svg"
+shortcut="$HOME/.local/share/applications/th-gamestudio.desktop"
+if [ -e "$shortcut" ] && ! grep -q 'Managed by TH-GameStudio' "$shortcut"; then
+  echo "Không ghi đè $shortcut" >&2; exit 1
+fi
+cat > "$shortcut" <<SHORTCUT
+# Managed by TH-GameStudio
+[Desktop Entry]
+Type=Application
+Name=TH GameStudio
+Comment=Mở thư viện game trên TV
+Exec="$helper"
+Icon=$HOME/.local/share/icons/th-gamestudio.svg
+Terminal=false
+Categories=Game;
+SHORTCUT
+desktop_dir="$(xdg-user-dir DESKTOP 2>/dev/null || true)"
+if [ -z "$desktop_dir" ] || [ "$desktop_dir" = "$HOME" ]; then
+  desktop_dir="$HOME/Desktop"
+fi
+mkdir -p "$desktop_dir"
+desktop_shortcut="$desktop_dir/TH-GameStudio.desktop"
+if [ -e "$desktop_shortcut" ] && ! grep -q 'Managed by TH-GameStudio' "$desktop_shortcut"; then
+  echo "Không ghi đè $desktop_shortcut" >&2; exit 1
+fi
+cp "$shortcut" "$desktop_shortcut"
+chmod +x "$desktop_shortcut"
 systemctl --user daemon-reload
 systemctl --user enable --now th-gamestudio.service
 python3 - <<'CHECK'

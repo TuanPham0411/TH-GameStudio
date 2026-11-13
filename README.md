@@ -37,16 +37,22 @@ Script tạo user service `th-gamestudio.service`, desktop autostart và helper 
 
 Sau khi reboot, kiểm tra launcher tự hiện trên TV và Pi Connect vẫn vào được. Chưa kiểm chứng trực tiếp trên Pi thật. Dùng 720p cho Pi 3B+.
 
-## Điều khiển
+## Giao diện và game offline
 
-- Mũi tên chọn mục, Enter mở. Trong game rắn: mũi tên đổi hướng, Enter chơi lại, Esc thoát game.
-- Tay cầm chuẩn Gamepad API: D-pad / cần trái, A chọn, B quay lại. Nhấn nút trên tay cầm để trình duyệt nhận thiết bị. Cần kiểm tra ánh xạ trên tay cầm thực tế.
-- Alt+F4 thoát Chromium kiosk về desktop. Mở lại launcher bằng helper phía trên.
-- Webgame mở cùng cửa sổ. Alt+Left để quay lại (có thể cần nhiều lần nếu website điều hướng); Alt+F4 rồi chạy lại helper nếu cần. Tay cầm trên website bên ngoài tùy game.
+Bốn game mini 2D chạy tại máy, không tải tài nguyên mạng:
 
-## Phạm vi bản đầu
+- **Đường đua hoàng hôn**: mũi tên trái/phải hoặc cần trái để tránh xe; va chạm kết thúc lượt.
+- **Vệ binh ngân hà**: trái/phải di chuyển, Space hoặc A bắn; va chạm hoặc để đối thủ vượt qua kết thúc lượt.
+- **Cặp đôi bí ẩn**: tìm sáu cặp thẻ bằng chuột, bàn phím hoặc tay cầm.
+- **Cả nhà cùng đoán**: hai người luân phiên dùng chung bộ điều khiển, tám câu hỏi và điểm riêng từng người.
 
-Có Rắn săn mồi offline, liên kết 2048 và thư viện web itch.io. Chưa tích hợp emulator, chạy executable Linux, tải ROM hoặc cài game. Không bảo đảm mọi webgame chạy tốt trên Pi 3B+.
+Đây là game mini giải trí, chưa phải mô phỏng đua xe 3D hoặc game bắn súng thương mại. Không có emulator hoặc game online trong phiên bản này.
+
+## Điều khiển và shortcut
+
+Mũi tên chọn mục, Enter/A chọn. Trong game hành động, Enter khi hết lượt hoặc Start trên tay cầm để chơi lại. Mỗi game có nút **← Quay lại thư viện**; Esc/B cũng quay lại. Tab dùng để tới nút Quay lại khi chơi game hành động. Alt+F4 thoát về desktop.
+
+Bộ cài tạo shortcut **TH GameStudio** trên Desktop và trong menu ứng dụng. Nếu desktop hỏi quyền chạy, chọn cho phép thực thi. Chạy lại workflow để cập nhật shortcut khi nâng cấp từ bản trước. Tay cầm phải hỗ trợ Gamepad API; nhấn nút để Chromium nhận thiết bị. Cần kiểm chứng ánh xạ và hiệu năng trên Pi thật.
 
 ## Bảo trì
 
