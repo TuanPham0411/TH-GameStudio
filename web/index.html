@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TH GameStudio</title><link rel="stylesheet" href="style.css">
+<body><header><b>TH<span> / </span>GAMESTUDIO</b><div><span id="controller">Bàn phím</span> · <time id="clock"></time></div></header>
+<main><p class="eyebrow">KHÔNG GIAN CHƠI GAME CỦA BẠN</p><h1>Chọn game.<br>Bắt đầu cuộc vui.</h1><p class="subtitle">Một góc giải trí nhỏ, ngay trên chiếc TV của bạn.</p>
+<nav aria-label="Loại game"><button class="active" data-filter="all">Tất cả</button><button data-filter="offline">Offline</button><button data-filter="online">Webgame</button></nav>
+<section id="games" aria-label="Thư viện game"></section><p id="message" role="status"></p></main>
+<footer><span>← ↑ ↓ → Di chuyển &nbsp; · &nbsp; Enter / A Chọn &nbsp; · &nbsp; Esc / B Quay lại</span><button id="fullscreen">Toàn màn hình</button></footer>
+<dialog id="play"><div class="game-head"><h2>Rắn săn mồi</h2><span id="score">Điểm: 0</span><button id="close">Đóng · Esc</button></div><canvas width="480" height="480" id="board" aria-label="Rắn săn mồi"></canvas><p id="hint">Phím mũi tên / D-pad để chơi · Enter / A để chơi lại</p><button id="restart">Chơi lại</button></dialog>
+<script src="app.js"></script></body></html>
