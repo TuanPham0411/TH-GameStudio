@@ -56,3 +56,50 @@ journalctl --user -u th-gamestudio.service -n 50 --no-pager
 ```
 
 Tắt tự mở giao diện: xóa `~/.config/autostart/th-gamestudio.desktop`. Dừng server bằng `systemctl --user disable --now th-gamestudio.service`. Các thay đổi này không tắt Pi Connect hay SSH.
+
+## GitHub Actions runner trên Pi
+
+Workflow **Deploy launcher to Raspberry Pi** chạy thủ công từ tab Actions, chỉ cho nhánh `main`. Dùng runner riêng có nhãn `th-gamestudio`; chưa tự triển khai mỗi lần push. Workflow không chạy pull request. Với repository public, chỉ cho người tin cậy quyền ghi và quyền chạy workflow: job trên self-hosted runner có quyền của tài khoản Pi.
+
+### Đăng ký một lần
+
+Trên GitHub vào **Settings → Actions → Runners → New self-hosted runner**, chọn **Linux / ARM64**. GitHub sẽ cung cấp phiên bản hiện hành, lệnh tải, kiểm tra SHA256 và mã đăng ký tạm thời. Không đưa mã đăng ký vào chat hoặc repository.
+
+Trên Pi, tạo thư mục bằng tài khoản desktop:
+
+```bash
+sudo -iu thienha
+mkdir -p ~/actions-runner
+cd ~/actions-runner
+```
+
+Thực hiện các lệnh tải và kiểm tra SHA256 do GitHub hiển thị, rồi giải nén tại đây. Chạy lệnh `./config.sh` mà GitHub cung cấp; đặt runner name `th-gamestudio-pi`, thêm label `th-gamestudio`, dùng work folder mặc định `_work`. Không chạy runner dưới root.
+
+Cài công cụ cho launcher nếu chưa có:
+
+```bash
+sudo apt update
+sudo apt install git python3 chromium
+```
+
+Trong `~/actions-runner`, đăng ký service chạy bằng `thienha`:
+
+```bash
+sudo ./svc.sh install thienha
+sudo ./svc.sh start
+sudo ./svc.sh status
+```
+
+Runner kết nối ra GitHub qua HTTPS, không cần mở cổng vào Pi và không cần Tailscale trên máy tính. Nếu GitHub báo runner Offline, kiểm tra service và mạng của Pi.
+
+### Triển khai
+
+Giữ desktop `thienha` đăng nhập (autologin), vào **Actions → Deploy launcher to Raspberry Pi → Run workflow → main**. Job cài release vào `~/apps/th-gamestudio/releases/`, cấu hình tự khởi động và kiểm tra HTTP phục vụ đúng JavaScript của release. Chưa tự xóa các release cũ.
+
+Lần đầu, mở Terminal **trên desktop Pi qua Pi Connect** rồi chạy:
+
+```bash
+~/.local/bin/th-gamestudio-start
+```
+
+Lần sau, refresh launcher đang mở để nhận bản mới. Workflow không đóng Chromium hoặc ngắt Pi Connect. Sau reboot, kiểm tra launcher tự mở và runner trở về trạng thái Idle. HTTP pass không thay thế kiểm tra HDMI, Bluetooth và tay cầm trên Pi thật.

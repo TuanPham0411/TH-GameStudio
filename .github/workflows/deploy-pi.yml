@@ -1,0 +1,57 @@
+name: Deploy launcher to Raspberry Pi
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: th-gamestudio-pi
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, ARM64, th-gamestudio]
+    timeout-minutes: 10
+    steps:
+      - name: Checkout approved main version
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check desktop account and session
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(id -un)" = thienha
+          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+          systemctl --user show-environment >/dev/null
+          command -v python3
+          command -v chromium
+          bash -n scripts/install-pi.sh
+      - name: Install release and verify local HTTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+          release="$HOME/apps/th-gamestudio/releases/$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$release"
+          cp -R web scripts README.md "$release/"
+          bash "$release/scripts/install-pi.sh"
+          systemctl --user restart th-gamestudio.service
+          python3 - <<'PY'
+          import time
+          import urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8765/app.js', timeout=2) as response:
+                      actual = response.read()
+                  with open('web/app.js', 'rb') as expected:
+                      assert actual == expected.read(), 'Server is not serving the deployed release'
+                  print('Deployed release verified')
+                  break
+              except (OSError, AssertionError):
+                  if attempt == 29:
+                      raise
+                  time.sleep(1)
+          PY
+          echo 'Launcher deployed. Refresh the open launcher or start it from the Pi desktop.' >> "$GITHUB_STEP_SUMMARY"
