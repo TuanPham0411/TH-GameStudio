@@ -53,11 +53,25 @@ if [ ! -S "$XDG_RUNTIME_DIR/bus" ]; then
   echo 'Chưa có phiên desktop. Hãy mở bằng Terminal trên desktop Pi.' >&2
   exit 1
 fi
+# Remote shells do not inherit the desktop Wayland environment.
+if [ -z "${WAYLAND_DISPLAY:-}" ]; then
+  shopt -s nullglob
+  sockets=()
+  for socket in "$XDG_RUNTIME_DIR"/wayland-*; do
+    [ -S "$socket" ] && sockets+=("$socket")
+  done
+  if [ "${#sockets[@]}" -ne 1 ]; then
+    echo 'Không xác định được Wayland desktop. Mở từ Terminal trên desktop Pi hoặc đặt WAYLAND_DISPLAY đúng phiên.' >&2
+    exit 1
+  fi
+  export WAYLAND_DISPLAY="${sockets[0]##*/}"
+fi
+export XDG_SESSION_TYPE=wayland
 systemctl --user start th-gamestudio.service
 for attempt in {1..30}; do
   if python3 -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8765/", timeout=1)' 2>/dev/null; then
     browser="$(command -v chromium || command -v chromium-browser)"
-    exec "$browser" --kiosk --no-first-run --user-data-dir="$HOME/.local/share/th-gamestudio/chromium" http://127.0.0.1:8765/
+    exec "$browser" --ozone-platform=wayland --kiosk --no-first-run --user-data-dir="$HOME/.local/share/th-gamestudio/chromium" http://127.0.0.1:8765/
   fi
   sleep 1
 done
